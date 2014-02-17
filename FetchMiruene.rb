@@ -20,21 +20,28 @@ class FetchMiruene
 	end
 
 	def fetchMonth(year, month)
-		
+		data = {}
+		time = Time.local(year, month, 1, 0, 0, 0)
+		while time.month == month
+			values = f.fetchDay(time.year, time.month, time.day)
+			values.each_with_index do |energy, hour|
+				data[time + hour*3600] = energy
+			end
+			time += 24*60*60
+		end
 	end
 
 	def fetchDay(year, month, day)
-		#date  = year.to_s+"年"+month.to_s+"月"+day.to_s+"日"
-		#p date
 		page = @agent.get(@config["url"]["data"])
 		form = page.forms[0]
+		form.year  = year
 		form.month = month
 		form.day   = day
 		form.hiddenMonth = month
 		form.hiddenDay   = day
-		form.action = "/eipc/pcd_time.do"
+		form.action = @config["url"]["time"]
 		page = @agent.submit(form)
-		#p page.search('//*[@id="PCD100Form"]/table[2]/tr/td[2]/table[1]/tr[2]/td').text.strip
+		p page.search('//*[@id="PCD100Form"]/table[2]/tr/td[2]/table[1]/tr[2]/td').text.strip
 
 		days = page.search('//*[@id="PCD100Form"]/table[2]/tr/td[2]/table[1]/tr[4]/td/table/tr[2]/td/table/tr/td/table[2]/tr/td').size
 
@@ -46,8 +53,9 @@ class FetchMiruene
 				if value.index("当日") == 0
 					values = value.scan(/当日(\S+)時　(\S+)kWh/) 
 					hour   = values[0][0].to_i
-					energy =  values[0][1].to_f
-					data[hour] = energy
+					energy = values[0][1].to_f
+					energy *= 1000
+					data[hour] = energy.to_i
 				end
 			end
 		end
@@ -55,19 +63,6 @@ class FetchMiruene
 		return data
 	end
 
-end
-
-f = FetchMiruene.new
-for month in 1..2
-	time = Time.local(2014, month, 1, 0, 0, 0)
-	while time.month == month
-		data = f.fetchDay(time.year, time.month, time.day)
-		data.each_with_index do |energy, hour|
-			p time + hour*3600
-			p energy
-		end
-		time += 24*60*60
-	end
 end
 
 
