@@ -18,9 +18,26 @@ for year in 2014..2015
     time = Time.local(year, month, 1, 0, 0, 0)
     #p time
     while time.month == month
-      print time.day.to_s+" "
-      today_last = MirueneRecord.find_by(datetime: time.to_i + 23*3600)
-      if today_last == nil
+
+      complete = true
+      for hour in 0..23
+        if MirueneRecord.find_by(datetime: time.to_i + hour*3600) == nil
+          complete = false
+          break
+        end
+      end
+
+      if !complete
+        print time.day.to_s+" "
+       
+        for hour in 0..23
+          exist = MirueneRecord.find_by(datetime: time.to_i + hour*3600)
+          if exist != nil
+            puts "  Delete "+ hour.to_s + ":00"
+            exist.destroy
+          end
+        end
+        
         values = f.fetchDay(time.year, time.month, time.day)
         values.each_with_index do |energy, hour|
           record = MirueneRecord.new
