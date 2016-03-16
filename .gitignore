@@ -19,6 +19,9 @@ Gemfile.lock
 .db/
 db/database.log
 
+config/miruene.yaml
+data/
+
 # YARD artifacts
 .yardoc
 _yardoc

@@ -1,0 +1,8 @@
+url: 
+  login: "https://flets-eco.jp/eipc/login_init.do"
+  data:  "https://flets-eco.jp/eipc/pcd_init.do"
+  time:  "https://flets-eco.jp/eipc/pcd_time.do"
+userId:   "your login id"
+password: "your password"
+
+
